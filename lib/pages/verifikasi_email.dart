@@ -6,76 +6,114 @@ import 'package:train_flutter/pages/register.dart';
 import 'package:train_flutter/shared/thame_shared.dart';
 
 class VerifPage extends StatefulWidget {
-  const VerifPage({super.key});
+  final String name;
+  final String email;
+
+  const VerifPage({super.key, required this.name, required this.email});
 
   @override
   State<VerifPage> createState() => _VerifPageState();
 }
 
 class _VerifPageState extends State<VerifPage> {
-  final _tokenController = TextEditingController();
-  final _emailController = TextEditingController(); // Tambahkan controller untuk email
-
+  final tokenController = TextEditingController();
+  final emailController =
+      TextEditingController(); // Tambahkan controller untuk email
+  
   // ignore: non_constant_identifier_names
-  void verif_email() async {
-    final token = _tokenController.text;
-    final email = _emailController.text; // Ambil email yang dimasukkan oleh pengguna
+
+
+  void verifEmail() async {
+
+    final token = tokenController.text;
+    final email = emailController.text;
+
+    if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Email tidak boleh kosong")),
+      );
+      return;
+    }
+
+    if (tokenController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Token tidak boleh kosong")),
+      );
+      return;
+    }
 
     try {
       // Melakukan verifikasi OTP dengan email
       await Supabase.instance.client.auth.verifyOTP(
         token: token,
-        type: OtpType.signup,  // Pastikan tipe OTP sesuai
+        type: OtpType.signup, // Pastikan tipe OTP sesuai
         email: email, // Sertakan email untuk verifikasi
       );
 
-      // Jika OTP valid, tampilkan dialog sukses
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset('assets/berhasil.png', width: 150, height: 150),
-                const SizedBox(height: 4),
-                Text(
-                  "Berhasil Terdaftar Silahkan Login",
-                  style: smallTextStyle,
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xff078EF4),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        await Supabase.instance.client.from('profiles').upsert({
+          'id': user.id,
+          'name': widget.name, // Menggunakan name yang diteruskan
+          'email': email, // Menggunakan email yang diteruskan
+          'gender': 'male', // Sesuaikan dengan data yang Anda inginkan
+          'weight': 0,
+          'height': 0,
+          'age': 0,
+          'role': 'user',
+          'status': 'active',
+        });
+
+        // Menampilkan dialog sukses
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset('assets/berhasil.png', width: 150, height: 150),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Berhasil Terdaftar Silahkan Login",
+                    style: smallTextStyle,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff078EF4),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Ok',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      child: const Text(
+                        'Ok',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
+                ],
+              ),
+            );
+          },
+        );
+      }
     } catch (e) {
+      // Tangani kesalahan di sini
       String errorMessage = 'Terjadi kesalahan. Coba lagi.';
       if (e is AuthException) {
         errorMessage = e.message;
@@ -130,12 +168,11 @@ class _VerifPageState extends State<VerifPage> {
     }
   }
 
-    Future<void> resendOTP() async {
-    final email = _emailController.text;
+  Future<void> resendOTP() async {
+    final email = emailController.text;
     try {
-      await Supabase.instance.client.auth.resend(
-        type: OtpType.signup,
-        email: email);
+      await Supabase.instance.client.auth
+          .resend(type: OtpType.signup, email: email);
       if (context.mounted) {
         showDialog(
           context: context,
@@ -234,6 +271,12 @@ class _VerifPageState extends State<VerifPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    emailController.text = widget.email; 
+  }
+
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -260,33 +303,33 @@ class _VerifPageState extends State<VerifPage> {
                     ),
                     const Gap(12),
                     Text(
-                      'Input your email and token',
+                      'Masukan email dan token',
                       style: smallTextStyle,
                     ),
                     const Gap(36),
                     TextFormField(
-                      controller: _emailController, 
+                      controller: emailController,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8))),
-                        labelText: 'Email', 
+                        labelText: 'Email',
                       ),
                     ),
                     const Gap(24),
                     TextFormField(
-                      controller: _tokenController,
+                      controller: tokenController,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8))),
                         labelText: 'Token',
                       ),
                     ),
-              
                     const Gap(24),
                     SizedBox(
-                      width: screenWidth, // Pastikan screenWidth sesuai dengan ukuran layar
+                      width:
+                          screenWidth, // Pastikan screenWidth sesuai dengan ukuran layar
                       child: ElevatedButton(
-                        onPressed: verif_email,
+                        onPressed: verifEmail,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xff078EF4), // Warna tombol
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -296,7 +339,7 @@ class _VerifPageState extends State<VerifPage> {
                           ),
                         ),
                         child: const Text(
-                          'Send',
+                          'Kirim Token',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -305,29 +348,28 @@ class _VerifPageState extends State<VerifPage> {
                         ),
                       ),
                     ),
-                      const Gap(24),
-
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Did not receive token?',
-                              style: smallTextStyle,
-                            ),
-                            const Gap(8),
-                            GestureDetector(
-                              onTap: resendOTP,
-                              child: Center(
-                                child: Text(
-                                  "Resend token",
-                                  style: bluesmallTextStyle,
-                                ),
+                    const Gap(24),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Token tidak terkirim?',
+                            style: smallTextStyle,
+                          ),
+                          const Gap(8),
+                          GestureDetector(
+                            onTap: resendOTP,
+                            child: Center(
+                              child: Text(
+                                "Kirim ulang",
+                                style: bluesmallTextStyle,
                               ),
-                            )
-                          ],
-                        ),
-                      )
+                            ),
+                          )
+                        ],
+                      ),
+                    )
                   ]),
                 ],
               ),
@@ -341,7 +383,7 @@ class _VerifPageState extends State<VerifPage> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              const RegisterPage()), // Pastikan ProfilePage sudah diimport
+                              const RegisterPage()), 
                     );
                   },
                 ),

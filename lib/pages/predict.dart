@@ -36,7 +36,6 @@ class _PredictFormState extends State<PredictForm> {
   double kalori = 0;
   double bmi = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -76,9 +75,50 @@ class _PredictFormState extends State<PredictForm> {
 
     final userId = user.id;
 
-    if (sugarController.text.isEmpty) {
+    if (ageController.text.isEmpty ||
+        int.tryParse(ageController.text) == null ||
+        int.tryParse(ageController.text)! <= 0 ||
+        ageController.text.startsWith('0')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Field GDS harus diisi")),
+        const SnackBar(
+            content: Text("❌ Umur harus diisi dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (heightController.text.isEmpty ||
+        int.tryParse(heightController.text) == null ||
+        int.tryParse(heightController.text)! < 100 ||
+        heightController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Tinggi badan harus diisi minimal 3 digit dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (weightController.text.isEmpty ||
+        int.tryParse(weightController.text) == null ||
+        int.tryParse(weightController.text)! < 10 ||
+        weightController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Berat badan harus diisi minimal 2 digit dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (sugarController.text.isEmpty ||
+        int.tryParse(sugarController.text) ==
+            null || // Check for non-numeric input
+        int.tryParse(sugarController.text)! < 10 ||
+        sugarController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Gula darah harus diisi minimal 2 digit dan tidak boleh 0 atau negatif")),
       );
       return;
     }
@@ -88,7 +128,6 @@ class _PredictFormState extends State<PredictForm> {
       predictionResult = '';
       nameResult = '';
     });
-
 
     final int glucoseLevel = int.tryParse(sugarController.text) ?? 0;
     final int age = int.tryParse(ageController.text) ?? 0;
@@ -213,110 +252,111 @@ class _PredictFormState extends State<PredictForm> {
     }
   }
 
-   void showPopup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        contentPadding: const EdgeInsets.all(12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        content: SizedBox(
-          width: 300,
-          height: 400,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Cek Gula Darah',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Image.asset(
-                'assets/glucose.png',
-                width: 100,
-                height: 100,
-              ),
-              const SizedBox(height: 10),
-              // Deskripsi
-              const Text(
-                'Anda dapat mengecek gula darah menggunakan blood glucose meter kapanpun',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              // Button untuk "Next"
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close the dialog
-                  showNextPopup(context); // Menampilkan popup selanjutnya
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  backgroundColor: blueColor,
-                ),
-                child: Text('Next', style : buttonTextStyle),
-              ),
-            ],
+  void showPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-        ),
-      );
-    },
-  );
-}
-
-void showNextPopup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        contentPadding: const EdgeInsets.all(12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        content: SizedBox(
-          width: 300,
-          height: 400,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Cek Hipertensi',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Image.asset(
-                'assets/hiper.png', 
-                width: 100,
-                height: 100,
-              ),
-              const SizedBox(height: 10),
-              // Deskripsi
-              const Text(
-                'Jika tekanan darah lebih dari 140 mmHg dan mengalami sakit kepala, riwayat hipertensi bisa pilih opsi Ya',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close the dialog
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  backgroundColor: blueColor,
+          content: SizedBox(
+            width: 300,
+            height: 400,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Cek Gula Darah',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                child: Text('Saya Mengerti', style: buttonTextStyle),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Image.asset(
+                  'assets/glucose.png',
+                  width: 100,
+                  height: 100,
+                ),
+                const SizedBox(height: 10),
+                // Deskripsi
+                const Text(
+                  'Anda dapat mengecek gula darah menggunakan blood glucose meter kapanpun',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 20),
+                // Button untuk "Next"
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    showNextPopup(context); // Menampilkan popup selanjutnya
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    backgroundColor: blueColor,
+                  ),
+                  child: Text('Selanjutnya', style: buttonTextStyle),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
+  void showNextPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: SizedBox(
+            width: 300,
+            height: 400,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Cek Hipertensi',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Image.asset(
+                  'assets/hiper.png',
+                  width: 100,
+                  height: 100,
+                ),
+                const SizedBox(height: 10),
+                // Deskripsi
+                const Text(
+                  'Jika tekanan darah lebih dari 140 mmHg dan mengalami sakit kepala, riwayat hipertensi bisa pilih opsi Ya',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    backgroundColor: blueColor,
+                  ),
+                  child: Text('Saya Mengerti', style: buttonTextStyle),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -324,22 +364,22 @@ void showNextPopup(BuildContext context) {
       children: [
         Scaffold(
           appBar: AppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                },
-              ),
-              backgroundColor: const Color(0xFFF2F9FC),
-              title: const Text("Cek Rekomendasi"),
-              actions: [
-          Padding(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
+              },
+            ),
+            backgroundColor: const Color(0xFFF2F9FC),
+            title: const Text("Cek Rekomendasi"),
+            actions: [
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: GestureDetector(
-                  onTap: () => showPopup(context), 
+                  onTap: () => showPopup(context),
                   child: Image.asset(
                     'assets/info.png',
                     width: 30,
@@ -347,12 +387,8 @@ void showNextPopup(BuildContext context) {
                   ),
                 ),
               ),
-        ],
-              
-              
-              ),
-              
-
+            ],
+          ),
           body: SafeArea(
             bottom: false,
             child: Container(
@@ -372,7 +408,7 @@ void showNextPopup(BuildContext context) {
                     controller: ageController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: "Age",
+                      labelText: "Umur",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -403,7 +439,7 @@ void showNextPopup(BuildContext context) {
                     controller: weightController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: "Weight (kg)",
+                      labelText: "Berat Badan(kg)",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -413,13 +449,13 @@ void showNextPopup(BuildContext context) {
                     controller: heightController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: "Height (cm)",
+                      labelText: "Tinggi Badan (cm)",
                       border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
-                   TextField(
+
+                  TextField(
                     controller: glucoseController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
@@ -444,7 +480,7 @@ void showNextPopup(BuildContext context) {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
-                      labelText: 'hypertension',
+                      labelText: 'Riwayat Hipertensi',
                     ),
                   ),
 
@@ -469,10 +505,6 @@ void showNextPopup(BuildContext context) {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                 
-
-                  
 
                   DropdownButtonFormField<int>(
                     value: activity,

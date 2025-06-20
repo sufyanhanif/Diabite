@@ -7,22 +7,46 @@ import 'package:train_flutter/pages/login.dart';
 import 'package:train_flutter/shared/thame_shared.dart';
 
 class ResetPassPage extends StatefulWidget {
-  const ResetPassPage({super.key});
+  final String email;
+  const ResetPassPage({super.key, required this.email});
 
   @override
   State<ResetPassPage> createState() => _ResetPassPageState();
 }
 
 class _ResetPassPageState extends State<ResetPassPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _tokenController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final tokenController = TextEditingController();
   var _passwordVisible = true;
 
   void reset_pass() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final token = _tokenController.text;
+
+    
+    final email = emailController.text;
+    final password = passwordController.text;
+    final token = tokenController.text;
+
+     if (emailController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("❌ Email tidak boleh kosong")),
+    );
+    return;
+  }
+
+   if (passwordController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("❌ Password tidak boleh kosong")),
+    );
+    return;
+  }
+
+  if (tokenController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("❌ Password tidak boleh kosong")),
+    );
+    return;
+  }
 
     try {
       final recovery = await Supabase.instance.client.auth.verifyOTP(
@@ -138,6 +162,12 @@ class _ResetPassPageState extends State<ResetPassPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    emailController.text = widget.email; 
+  }
+
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -164,12 +194,12 @@ class _ResetPassPageState extends State<ResetPassPage> {
                     ),
                     const Gap(12),
                     Text(
-                      'Input your token, email, and password',
+                      'Masukan token, email, dan password',
                       style: smallTextStyle,
                     ),
                     const Gap(36),
                     TextFormField(
-                      controller: _tokenController,
+                      controller: tokenController,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -178,7 +208,7 @@ class _ResetPassPageState extends State<ResetPassPage> {
                     ),
                     const Gap(24),
                     TextFormField(
-                      controller: _emailController,
+                      controller: emailController,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -191,13 +221,13 @@ class _ResetPassPageState extends State<ResetPassPage> {
                     ),
                     const Gap(24),
                     TextFormField(
-                      controller: _passwordController,
+                      controller: passwordController,
                       obscureText: _passwordVisible,
                       decoration: InputDecoration(
                           border: const OutlineInputBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8))),
-                          labelText: 'New Password',
+                          labelText: 'Password baru',
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
@@ -226,7 +256,7 @@ class _ResetPassPageState extends State<ResetPassPage> {
                           ),
                         ),
                         child: const Text(
-                          'Save',
+                          'Simpan',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

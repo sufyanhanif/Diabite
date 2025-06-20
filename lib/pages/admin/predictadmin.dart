@@ -75,9 +75,50 @@ class _PredictFormAdminState extends State<PredictFormAdmin> {
 
     final userId = user.id;
 
-    if (sugarController.text.isEmpty) {
+    if (ageController.text.isEmpty ||
+        int.tryParse(ageController.text) == null ||
+        int.tryParse(ageController.text)! <= 0 ||
+        ageController.text.startsWith('0')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Field GDS harus diisi")),
+        const SnackBar(
+            content: Text("❌ Umur harus diisi dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (heightController.text.isEmpty ||
+        int.tryParse(heightController.text) == null ||
+        int.tryParse(heightController.text)! < 100 ||
+        heightController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Tinggi badan harus diisi minimal 3 digit dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (weightController.text.isEmpty ||
+        int.tryParse(weightController.text) == null ||
+        int.tryParse(weightController.text)! < 10 ||
+        weightController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Berat badan harus diisi minimal 2 digit dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (sugarController.text.isEmpty ||
+        int.tryParse(sugarController.text) ==
+            null || // Check for non-numeric input
+        int.tryParse(sugarController.text)! < 10 ||
+        sugarController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Gula darah harus diisi minimal 2 digit dan tidak boleh 0 atau negatif")),
       );
       return;
     }
@@ -255,7 +296,7 @@ class _PredictFormAdminState extends State<PredictFormAdmin> {
                         horizontal: 20, vertical: 10),
                     backgroundColor: blueColor,
                   ),
-                  child: Text('Next', style: buttonTextStyle),
+                  child: Text('Selanjutnya', style: buttonTextStyle),
                 ),
               ],
             ),
@@ -367,7 +408,7 @@ class _PredictFormAdminState extends State<PredictFormAdmin> {
                     controller: ageController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: "Age",
+                      labelText: "Umur",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -398,7 +439,7 @@ class _PredictFormAdminState extends State<PredictFormAdmin> {
                     controller: weightController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: "Weight (kg)",
+                      labelText: "Berat badan (kg)",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -408,7 +449,7 @@ class _PredictFormAdminState extends State<PredictFormAdmin> {
                     controller: heightController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: "Height (cm)",
+                      labelText: "Tinggi badan (cm)",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -439,7 +480,7 @@ class _PredictFormAdminState extends State<PredictFormAdmin> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
-                      labelText: 'hypertension',
+                      labelText: 'Riwayat Hipertensi',
                     ),
                   ),
 

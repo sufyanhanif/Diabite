@@ -13,8 +13,8 @@ class AuthService {
       );
 
       final user = response.user;
-      if (user == null) {
-        throw Exception('Login failed: User not found');
+      if (user != null && user.emailConfirmedAt == null) {
+        throw Exception("Please verify your email before signing in.");
       }
 
       return response;
@@ -28,32 +28,33 @@ class AuthService {
   Future<AuthResponse> signUpWithEmailPassword(
       String email, String password, String name) async {
     try {
+
+       final profileResponse = await _supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+
+    // Jika email sudah terdaftar
+    // ignore: unnecessary_null_comparison
+    if (profileResponse != null) {
+      throw Exception('Email sudah terdaftar.');
+    }
+
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
       );
+      final User? user = response.user;
+      final Session? session = response.session;
 
-      final user = response.user;
-
-      if (user != null) {
-        await _supabase.from('profiles').upsert({
-          'id': user.id,
-          'name': name,
-          'email': email,
-          'gender': 'male',
-          'weight': 0,
-          'height': 0,
-          'age': 0,
-          'role': 'user',
-          'status': 'active'
-        });
-
-        print('User registered successfully: Name: $name');
+      if (user != null && session == null) {
+        print('User registered successfully. Please verify your email.');
       }
 
       return response;
     } catch (e) {
-      throw Exception('Signup failed: $e');
+      throw Exception('$e');
     }
   }
 
@@ -128,34 +129,31 @@ class AuthService {
     final user = _supabase.auth.currentUser;
 
     if (user == null) {
-      return null; 
+      return null;
     }
 
-      final response = await _supabase
-          .from('profiles')
-          .select('role') 
-          .eq('id', user.id) 
-          .single(); 
+    final response = await _supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-      return response['role'];
-  
+    return response['role'];
   }
 
-  
   Future<String?> getCurrentUserHasil() async {
     final user = _supabase.auth.currentUser;
 
     if (user == null) {
-      return null; 
+      return null;
     }
 
-      final response = await _supabase
-          .from('profiles')
-          .select('hasil') 
-          .eq('id', user.id) 
-          .single(); 
+    final response = await _supabase
+        .from('profiles')
+        .select('hasil')
+        .eq('id', user.id)
+        .single();
 
-      return response['hasil'];
-  
+    return response['hasil'];
   }
 }

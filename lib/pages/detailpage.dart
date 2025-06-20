@@ -21,6 +21,18 @@ class _DetailPageState extends State<DetailPage> {
   String dropdownValueJenis = 'Sayuran';
   List<Map<String, dynamic>> rekomResult = [];
 
+  String getBmiCategory(double bmi) {
+    if (bmi < 18.5) {
+      return 'Kekurangan berat badan';
+    } else if (bmi < 25) {
+      return 'Berat badan ideal';
+    } else if (bmi < 30) {
+      return 'Kelebihan berat badan';
+    } else {
+      return 'Obesitas';
+    }
+  }
+
   Widget getFoodImage(String jenis) {
     switch (jenis) {
       case 'Sayuran':
@@ -67,7 +79,7 @@ class _DetailPageState extends State<DetailPage> {
         );
       default:
         return Image.asset(
-          'assets/roti.png', 
+          'assets/roti.png',
           width: 200,
           height: 200,
         );
@@ -161,95 +173,95 @@ class _DetailPageState extends State<DetailPage> {
       isLoading = false;
     });
   }
-Future<void> deleteRecord() async {
-  // Show confirmation dialog
-  final shouldDelete = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset('assets/ques.png', width: 150, height: 150),
-          const SizedBox(height: 4),
-          const Text("Anda yakin ingin menghapus record ini?"),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff078EF4),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+
+  Future<void> deleteRecord() async {
+    // Show confirmation dialog
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/ques.png', width: 150, height: 150),
+            const SizedBox(height: 4),
+            const Text("Anda yakin ingin menghapus record ini?"),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff078EF4),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+                      child: const Text('Yakin',
+                          style: TextStyle(color: Colors.white)),
                     ),
-                    child: const Text('Yakin', style: TextStyle(color: Colors.white)),
                   ),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  const Gap(16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+                      child: const Text('Batal',
+                          style: TextStyle(color: Color(0xff078EF4))),
                     ),
-                    child: const Text('Batal', style: TextStyle(color: Color(0xff078EF4))),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-
-  // If user chose "No", stop the delete operation
-  if (shouldDelete != true) return;
-
-  // Start loading
-  setState(() {
-    isLoading = true;
-  });
-
-  try {
-    // Menghapus record
-    await detailService.deleteMedicalRecord(widget.recordId);
-
- 
-    // ignore: use_build_context_synchronously
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Record berhasil dihapus')),
     );
 
-    // Navigate back to the homepage after deletion
-    Navigator.pushReplacement(
-      // ignore: use_build_context_synchronously
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
-  } catch (e) {
-    // Handle any errors during deletion
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Gagal menghapus data: $e')),
-    );
-  } finally {
-    // Stop loading
+    // If user chose "No", stop the delete operation
+    if (shouldDelete != true) return;
+
+    // Start loading
     setState(() {
-      isLoading = false;
+      isLoading = true;
     });
+
+    try {
+      // Menghapus record
+      await detailService.deleteMedicalRecord(widget.recordId);
+
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Record berhasil dihapus')),
+      );
+
+      // Navigate back to the homepage after deletion
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (e) {
+      // Handle any errors during deletion
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus data: $e')),
+      );
+    } finally {
+      // Stop loading
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -270,16 +282,16 @@ Future<void> deleteRecord() async {
         title: const Text('Detail Rekaman Medis'),
         actions: [
           Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: GestureDetector(
-                  onTap:  deleteRecord,
-                  child: Image.asset(
-                    'assets/hapus.png',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: GestureDetector(
+              onTap: deleteRecord,
+              child: Image.asset(
+                'assets/hapus.png',
+                width: 30,
+                height: 30,
               ),
+            ),
+          ),
         ],
         backgroundColor: const Color(0xFFF2F9FC),
       ),
@@ -355,12 +367,10 @@ Future<void> deleteRecord() async {
                                   children: [
                                     Text(
                                         'Gula Darah: ${recordDetail!['blood_glucose_level'] ?? 'Data tidak tersedia'}'),
-                                    const Gap(16),
+                                    const Gap(8),
                                     Text(
                                         'Umur: ${recordDetail!['age'] ?? 'Data tidak tersedia'}'),
                                     const Gap(16),
-                                    Text(
-                                        'BMI: ${recordDetail!['bmi'] ?? 'Data tidak tersedia'}'),
                                   ],
                                 ),
                                 const Gap(8),
@@ -368,7 +378,7 @@ Future<void> deleteRecord() async {
                                   children: [
                                     Text(
                                         'Riwayat Hipertensi: ${recordDetail!['hypertension'] == 1 ? 'Iya' : recordDetail!['hypertension'] == 0 ? 'Tidak' : 'Data tidak tersedia'}'),
-                                    const Gap(16),
+                                    const Gap(8),
                                     Text(
                                         'Riwayat Diabetes: ${recordDetail!['riwayat_diabetes'] == 1 ? 'Iya' : recordDetail!['riwayat_diabetes'] == 0 ? 'Tidak' : 'Data tidak tersedia'}'),
                                   ],
@@ -380,6 +390,54 @@ Future<void> deleteRecord() async {
                       ),
                     ),
                     const Gap(12),
+                    Card(
+                      color: primaryColor,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Kondisi tubuh',
+                                  style: smalllowTextStyle,
+                                ),
+                                const Gap(8),
+                                Image.asset(
+                                  'assets/bmi.png',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                            const Gap(8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  recordDetail!['bmi'] != null
+                                      ? 'BMI: ${recordDetail!['bmi'].toStringAsFixed(1)}'
+                                      : 'BMI: Data tidak tersedia',
+                                  style: smallTextStyle,
+                                ),
+                                const Gap(4),
+                                if (recordDetail!['bmi'] != null)
+                                  Text(
+                                    'Kategori: ${getBmiCategory(recordDetail!['bmi'])}',
+                                    style: smallTextStyle,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Gap(16),
                     Card(
                       color: primaryColor,
                       elevation: 4,
@@ -415,6 +473,7 @@ Future<void> deleteRecord() async {
                       ),
                     ),
                     const Gap(16),
+                    
                     Card(
                       color: Colors
                           .white, // Atau ganti dengan warna seperti Color(0xFFF2F9FC)
@@ -444,28 +503,13 @@ Future<void> deleteRecord() async {
                             const Gap(16),
                             DropdownButtonFormField<String>(
                               value: dropdownValueJenis,
-                              items: recordDetail!['blood_glucose_level'] >
-                                          140 &&
-                                      recordDetail!['blood_glucose_level'] < 199
-                                  ? [
-                                      'Sayuran',
-                                      'Buah',
-                                      'Ikan & Seafood',
-                                      'Kacang-Kacangan',
-                                      'Telur',
-                                      'Daging'
-                                    ]
-                                      .map((value) => DropdownMenuItem(
-                                            value: value,
-                                            child: Text(value),
-                                          ))
-                                      .toList()
-                                  : recordDetail!['prediction'] == 1
+                              items: recordDetail!['prediction'] == 1
                                       ? [
                                           'Sayuran',
                                           'Buah',
                                           'Kacang-Kacangan',
-                                          'Ikan & Seafood'
+                                          'Ikan & Seafood',
+                                          'Telur'
                                         ]
                                           .map((value) => DropdownMenuItem(
                                                 value: value,

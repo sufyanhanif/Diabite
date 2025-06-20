@@ -22,14 +22,14 @@ class _LoginPageState extends State<LoginPage> {
   final authService = AuthService();
 
   //text Controller
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   var _passwordVisible = true;
 
 
 // void login() async {
-//   final email = _emailController.text;
-//   final password = _passwordController.text;
+//   final email = emailController.text;
+//   final password = passwordController.text;
 
 //   try {
     
@@ -139,8 +139,22 @@ class _LoginPageState extends State<LoginPage> {
 // }
 
 void login() async {
-  final email = _emailController.text;
-  final password = _passwordController.text;
+  final email = emailController.text;
+  final password = passwordController.text;
+
+  if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Email tidak boleh kosong")),
+      );
+      return;
+    }
+
+    if (passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Password tidak boleh kosong")),
+      );
+      return;
+    }
 
   try {
     if (email.isEmpty || password.isEmpty) {
@@ -296,12 +310,12 @@ void login() async {
                       ),
                       const Gap(12),
                       Text(
-                        'Input your email and password',
+                        'Masukan email dan password',
                         style: smallTextStyle,
                       ),
                       const Gap(36),
                       TextFormField(
-                        controller: _emailController,
+                        controller: emailController,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius:
@@ -315,7 +329,7 @@ void login() async {
                       ),
                       const Gap(24),
                       TextFormField(
-                        controller: _passwordController,
+                        controller: passwordController,
                         obscureText: _passwordVisible,
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(
@@ -351,7 +365,7 @@ void login() async {
                             mainAxisAlignment:
                                 MainAxisAlignment.end, // Menggeser ke kanan
                             children: [
-                              Text("Forgot Password?",
+                              Text("Lupa Password?",
                                   style: bluesmallTextStyle),
                             ],
                           ),
@@ -390,7 +404,7 @@ void login() async {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Dont have Account?',
+                              'Tidak punya akun?',
                               style: smallTextStyle,
                             ),
                             const Gap(8),
@@ -402,7 +416,7 @@ void login() async {
                                   )),
                               child: Center(
                                 child: Text(
-                                  "Sign Up",
+                                  "Daftar",
                                   style: bluesmallTextStyle,
                                 ),
                               ),

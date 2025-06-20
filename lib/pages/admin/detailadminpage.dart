@@ -21,6 +21,18 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
   String dropdownValueJenis = 'Sayuran';
   List<Map<String, dynamic>> rekomResult = [];
 
+    String getBmiCategory(double bmi) {
+    if (bmi < 18.5) {
+      return 'Kekurangan berat badan';
+    } else if (bmi < 25) {
+      return 'Berat badan ideal';
+    } else if (bmi < 30) {
+      return 'Kelebihan berat badan';
+    } else {
+      return 'Obesitas';
+    }
+  }
+
   Widget getFoodImage(String jenis) {
     switch (jenis) {
       case 'Sayuran':
@@ -354,12 +366,10 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                                   children: [
                                     Text(
                                         'Gula Darah: ${recordDetail!['blood_glucose_level'] ?? 'Data tidak tersedia'}'),
-                                    const Gap(16),
+                                    const Gap(8),
                                     Text(
                                         'Umur: ${recordDetail!['age'] ?? 'Data tidak tersedia'}'),
                                     const Gap(16),
-                                    Text(
-                                        'BMI: ${recordDetail!['bmi'] ?? 'Data tidak tersedia'}'),
                                   ],
                                 ),
                                 const Gap(8),
@@ -367,7 +377,7 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                                   children: [
                                     Text(
                                         'Riwayat Hipertensi: ${recordDetail!['hypertension'] == 1 ? 'Iya' : recordDetail!['hypertension'] == 0 ? 'Tidak' : 'Data tidak tersedia'}'),
-                                    const Gap(16),
+                                    const Gap(8),
                                     Text(
                                         'Riwayat Diabetes: ${recordDetail!['riwayat_diabetes'] == 1 ? 'Iya' : recordDetail!['riwayat_diabetes'] == 0 ? 'Tidak' : 'Data tidak tersedia'}'),
                                   ],
@@ -379,6 +389,54 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                       ),
                     ),
                     const Gap(12),
+                     Card(
+                      color: primaryColor,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Kondisi tubuh',
+                                  style: smalllowTextStyle,
+                                ),
+                                const Gap(8),
+                                Image.asset(
+                                  'assets/bmi.png',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                            const Gap(8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  recordDetail!['bmi'] != null
+                                      ? 'BMI: ${recordDetail!['bmi'].toStringAsFixed(1)}'
+                                      : 'BMI: Data tidak tersedia',
+                                  style: smallTextStyle,
+                                ),
+                                const Gap(4),
+                                if (recordDetail!['bmi'] != null)
+                                  Text(
+                                    'Kategori: ${getBmiCategory(recordDetail!['bmi'])}',
+                                    style: smallTextStyle,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Gap(16),
                     Card(
                       color: primaryColor,
                       elevation: 4,

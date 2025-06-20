@@ -15,15 +15,30 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final _emailController = TextEditingController();
+  final emailController = TextEditingController();
 
-  
   void sendResetPasswordToken() async {
     // Prepare data
 
-    final email = _emailController.text;
+    final email = emailController.text;
+
+    if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Email tidak boleh kosong")),
+      );
+      return;
+    }
 
     try {
+      final response = await Supabase.instance.client
+          .from('profiles') // Ganti 'profiles' dengan nama tabel yang sesuai
+          .select('email') // Pilih field email
+          .eq('email', email) // Cek apakah email yang dimasukkan ada di tabel
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('Email belum terdaftar.');
+      }
       // Trigger the reset password action
       await Supabase.instance.client.auth.resetPasswordForEmail(email);
 
@@ -33,9 +48,40 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              content: const Text(
-                'Check your Email',
-                textAlign: TextAlign.center,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset('assets/berhasil.png', width: 150, height: 150),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Cek Email",
+                    style: smallTextStyle,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Menutup dialog
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff078EF4),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ok',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -65,11 +111,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         Navigator.pop(context); // Close dialog
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff078EF4), // Button color
+                        backgroundColor:
+                            const Color(0xff078EF4), // Button color
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(12), 
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: const Text(
@@ -107,7 +153,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       colors: <Color>[Color(0xffF2F9FC), Color(0xffAEBFF8)]),
                 ),
               ),
-              
               ListView(
                 padding: EdgeInsets.symmetric(
                   horizontal: defaultMargin,
@@ -122,12 +167,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       const Gap(12),
                       Text(
-                        'Input your email to get token',
+                        'Masukan email untuk mendapatkan token',
                         style: smallTextStyle,
                       ),
                       const Gap(36),
                       TextFormField(
-                        controller: _emailController,
+                        controller: emailController,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius:
@@ -154,7 +199,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                           ),
                           child: const Text(
-                            'Send',
+                            'Kirim token',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -170,7 +215,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'received the token',
+                              'Sudah dapat token?',
                               style: smallTextStyle,
                             ),
                             const Gap(8),
@@ -178,7 +223,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               onTap: () => Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const ResetPassPage(),
+                                    builder: (context) => ResetPassPage(
+                                        email: emailController.text),
                                   )),
                               child: Center(
                                 child: Text(
@@ -195,20 +241,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ],
               ),
               Positioned(
-                        top: 30,
-                        left: 10,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const LoginPage()), // Pastikan ProfilePage sudah diimport
-                              );
-                          },
-                        ),
-                      ),
+                top: 30,
+                left: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const LoginPage()), // Pastikan ProfilePage sudah diimport
+                    );
+                  },
+                ),
+              ),
             ],
           )),
     );

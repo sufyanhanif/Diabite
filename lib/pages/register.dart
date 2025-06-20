@@ -17,11 +17,11 @@ class _RegisterPageState extends State<RegisterPage> {
   //get auth service
   final authService = AuthService();
 
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _confirmpasswordController = TextEditingController();
-  var _passwordVisible = true;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final nameController = TextEditingController();
+  final confirmpasswordController = TextEditingController();
+  var passwordVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +29,58 @@ class _RegisterPageState extends State<RegisterPage> {
     void signup() async {
       //prepare data
 
-      final email = _emailController.text;
-      final password = _passwordController.text;
-      final name = _nameController.text;
-      final confirmPassword = _confirmpasswordController.text;
+      final email = emailController.text;
+      final password = passwordController.text;
+      final name = nameController.text;
+      final confirmPassword = confirmpasswordController.text;
+
+       if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Email tidak boleh kosong")),
+      );
+      return;
+    }
+
+    if (passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Password tidak boleh kosong")),
+      );
+      return;
+    }
+
+    if (nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Nama tidak boleh kosong")),
+      );
+      return;
+    }
+
+    if (confirmpasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Konfirmasi password tidak boleh kosong")),
+      );
+      return;
+    }
 
       if (password != confirmPassword) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Password Wrong")));
+            .showSnackBar(const SnackBar(content: Text("Password tidak cocok")));
         return;
       }
 
       try {
         await authService.signUpWithEmailPassword(email, password, name);
-
+        
         if (mounted) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const VerifPage()));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerifPage(
+                name: name, // Mengirim name
+                email: email, // Mengirim email
+              ),
+            ),
+          );
 
           showDialog(
             context: context,
@@ -92,6 +127,11 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         }
       } catch (e) {
+
+        String errorMessage = e.toString();
+
+        errorMessage = errorMessage.replaceAll('Exception:', '');
+
         if (context.mounted) {
           showDialog(
             context: context,
@@ -103,7 +143,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Image.asset('assets/gagal.png', width: 150, height: 150),
                     const SizedBox(height: 4),
                     Text(
-                      "Gagal mendaftar",
+                       "Terjadi kesalahan: $errorMessage",
                       style: smallTextStyle,
                     ),
                     const SizedBox(height: 12),
@@ -169,23 +209,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const Gap(12),
                           Text(
-                            'Input your email, password and name',
+                            'Masukan email, password dan nama',
                             style: smallTextStyle,
                           ),
                           const Gap(36),
 
                           TextFormField(
-                            controller: _nameController,
+                            controller: nameController,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8))),
-                              labelText: 'Name',
+                              labelText: 'Nama',
                             ),
                           ),
                           const Gap(24),
                           TextFormField(
-                            controller: _emailController,
+                            controller: emailController,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(
                                   borderRadius:
@@ -201,8 +241,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const Gap(24),
                           TextFormField(
-                            controller: _passwordController,
-                            obscureText: _passwordVisible,
+                            controller: passwordController,
+                            obscureText: passwordVisible,
                             decoration: InputDecoration(
                                 border: const OutlineInputBorder(
                                     borderRadius:
@@ -211,11 +251,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                 suffixIcon: IconButton(
                                   onPressed: () {
                                     setState(() {
-                                      _passwordVisible = !_passwordVisible;
+                                      passwordVisible = !passwordVisible;
                                     });
                                   },
                                   icon: Icon(
-                                    _passwordVisible
+                                    passwordVisible
                                         ? Icons.visibility_off
                                         : Icons.visibility,
                                   ),
@@ -223,21 +263,21 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const Gap(24),
                           TextFormField(
-                            controller: _confirmpasswordController,
-                            obscureText: _passwordVisible,
+                            controller: confirmpasswordController,
+                            obscureText: passwordVisible,
                             decoration: InputDecoration(
                               border: const OutlineInputBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8))),
-                              labelText: 'Confirm Password',
+                              labelText: 'Konfirmasi Password',
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    _passwordVisible = !_passwordVisible;
+                                    passwordVisible = !passwordVisible;
                                   });
                                 },
                                 icon: Icon(
-                                  _passwordVisible
+                                  passwordVisible
                                       ? Icons.visibility_off
                                       : Icons.visibility,
                                 ),
@@ -257,10 +297,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 AutovalidateMode.onUserInteraction,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
+                                return 'Tolong konfirmasi password';
                               }
-                              if (value != _passwordController.text) {
-                                return 'Password does not match';
+                              if (value != passwordController.text) {
+                                return 'Password tidak cocok';
                               }
                               return null;
                             },
@@ -300,7 +340,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Have account?',
+                                  'Punya akun?',
                                   style: smallTextStyle,
                                 ),
                                 const Gap(8),
@@ -312,7 +352,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       )),
                                   child: Center(
                                     child: Text(
-                                      "Sign In",
+                                      "Masuk",
                                       style: bluesmallTextStyle,
                                     ),
                                   ),

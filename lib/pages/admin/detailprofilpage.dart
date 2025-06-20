@@ -26,7 +26,8 @@ class _DetailProfilPageState extends State<DetailProfilPage> {
   bool isLoading = true;
   bool isReadOnly = true;
   Map<String, dynamic>? userDetail; // Make userDetail nullable
-  List<Map<String, dynamic>> diabetesHistory = []; // Store the diabetes history
+  List<Map<String, dynamic>> diabetesHistory = [];
+  
 
   @override
   void initState() {

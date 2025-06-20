@@ -15,11 +15,11 @@ class ProfilPage extends StatefulWidget {
 final profilService = ProfilService();
 
 class _ProfilPageState extends State<ProfilPage> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _ageController = TextEditingController();
-  final _tbController = TextEditingController();
-  final _rbController = TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final ageController = TextEditingController();
+  final heightController = TextEditingController();
+  final weightController = TextEditingController();
 
   String? gender;
   bool isLoading = true;
@@ -45,12 +45,12 @@ class _ProfilPageState extends State<ProfilPage> {
       final berat = await profilService.getCurrentUserBeratBadan();
 
       setState(() {
-        _emailController.text = email;
-        _nameController.text = name ?? '';
+        emailController.text = email;
+        nameController.text = name ?? '';
         this.gender = gender ?? '';
-        _ageController.text = age?.toString() ?? '0';
-        _tbController.text = tinggi?.toString() ?? '0';
-        _rbController.text = berat?.toString() ?? '0';
+        ageController.text = age?.toString() ?? '0';
+        heightController.text = tinggi?.toString() ?? '0';
+        weightController.text = berat?.toString() ?? '0';
       });
     } catch (e) {
       print('Error saat ambil profil: $e');
@@ -73,11 +73,11 @@ class _ProfilPageState extends State<ProfilPage> {
 //   });
 
 //   try {
-//     String newEmail = _emailController.text;
-//     final name = _nameController.text;
-//     final age = int.tryParse(_ageController.text) ?? 0;
-//     final tinggiBadan = int.tryParse(_tbController.text) ?? 0;
-//     final beratBadan = int.tryParse(_rbController.text) ?? 0;
+//     String newEmail = emailController.text;
+//     final name = nameController.text;
+//     final age = int.tryParse(ageController.text) ?? 0;
+//     final tinggiBadan = int.tryParse(heightController.text) ?? 0;
+//     final beratBadan = int.tryParse(weightController.text) ?? 0;
 
 //     await profilService.updateEmail(newEmail);
 //     final user = Supabase.instance.client.auth.currentUser;
@@ -118,6 +118,48 @@ class _ProfilPageState extends State<ProfilPage> {
 // }
 
   void saveChanges() async {
+    if (nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Nama tidak boleh kosong")),
+      );
+      return;
+    }
+
+    if (ageController.text.isEmpty ||
+        int.tryParse(ageController.text) == null ||
+        int.tryParse(ageController.text)! <= 0 ||
+        ageController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("❌ Umur harus diisi dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (heightController.text.isEmpty ||
+        int.tryParse(heightController.text) == null ||
+        int.tryParse(heightController.text)! < 100 ||
+        heightController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Tinggi badan harus diisi minimal 3 digit dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
+    if (weightController.text.isEmpty ||
+        int.tryParse(weightController.text) == null ||
+        int.tryParse(weightController.text)! < 10 ||
+        weightController.text.startsWith('0')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "❌ Berat badan harus diisi minimal 2 digit dan tidak boleh 0 atau negatif")),
+      );
+      return;
+    }
+
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -175,10 +217,10 @@ class _ProfilPageState extends State<ProfilPage> {
     });
 
     try {
-      final name = _nameController.text;
-      final age = int.tryParse(_ageController.text) ?? 0;
-      final tinggiBadan = int.tryParse(_tbController.text) ?? 0;
-      final beratBadan = int.tryParse(_rbController.text) ?? 0;
+      final name = nameController.text;
+      final age = int.tryParse(ageController.text) ?? 0;
+      final tinggiBadan = int.tryParse(heightController.text) ?? 0;
+      final beratBadan = int.tryParse(weightController.text) ?? 0;
 
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return;
@@ -268,7 +310,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                     const Gap(8),
                     Text(
-                      _emailController.text,
+                      emailController.text,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -276,7 +318,7 @@ class _ProfilPageState extends State<ProfilPage> {
                       ),
                     ),
                     // TextFormField(
-                    //   controller: _emailController,
+                    //   controller: emailController,
                     //   readOnly: true,
                     //   decoration: const InputDecoration(
                     //     border: OutlineInputBorder(
@@ -287,7 +329,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     // ),
                     const Gap(16),
                     TextFormField(
-                      controller: _nameController,
+                      controller: nameController,
                       readOnly: isReadOnly,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
@@ -341,7 +383,8 @@ class _ProfilPageState extends State<ProfilPage> {
                       ),
                     const Gap(16),
                     TextFormField(
-                      controller: _ageController,
+                      controller: ageController,
+                      keyboardType: TextInputType.number,
                       readOnly: isReadOnly,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
@@ -352,24 +395,26 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                     const Gap(16),
                     TextFormField(
-                      controller: _tbController,
+                      controller: heightController,
+                      keyboardType: TextInputType.number,
                       readOnly: isReadOnly,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)),
                         ),
-                        labelText: 'Tinggi Badan (centimeter)',
+                        labelText: 'Tinggi Badan (cm)',
                       ),
                     ),
                     const Gap(16),
                     TextFormField(
-                      controller: _rbController,
+                      controller: weightController,
+                      keyboardType: TextInputType.number,
                       readOnly: isReadOnly,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)),
                         ),
-                        labelText: 'Berat Badan (Kg)',
+                        labelText: 'Berat Badan (kg)',
                       ),
                     ),
                     const Gap(16),
