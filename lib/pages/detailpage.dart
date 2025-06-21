@@ -502,7 +502,9 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                             const Gap(16),
                             DropdownButtonFormField<String>(
+                              menuMaxHeight: 500.0,
                               value: dropdownValueJenis,
+                              isExpanded: true,
                               items: recordDetail!['prediction'] == 1
                                       ? [
                                           'Sayuran',
@@ -513,7 +515,7 @@ class _DetailPageState extends State<DetailPage> {
                                         ]
                                           .map((value) => DropdownMenuItem(
                                                 value: value,
-                                                child: Text(value),
+                                                child: Text(value,style: const TextStyle(fontSize: 14),),
                                               ))
                                           .toList()
                                       : [
@@ -528,7 +530,7 @@ class _DetailPageState extends State<DetailPage> {
                                         ]
                                           .map((value) => DropdownMenuItem(
                                                 value: value,
-                                                child: Text(value),
+                                                child: Text(value, style: const TextStyle(fontSize: 14),),
                                               ))
                                           .toList(),
                               onChanged: (newValue) {

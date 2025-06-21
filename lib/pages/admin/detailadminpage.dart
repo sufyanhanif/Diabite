@@ -511,7 +511,7 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                                         ]
                                           .map((value) => DropdownMenuItem(
                                                 value: value,
-                                                child: Text(value),
+                                                child: Text(value, style: const TextStyle(fontSize: 14),),
                                               ))
                                           .toList()
                                       : [
@@ -526,7 +526,7 @@ class _DetailAdminPageState extends State<DetailAdminPage> {
                                         ]
                                           .map((value) => DropdownMenuItem(
                                                 value: value,
-                                                child: Text(value),
+                                                child: Text(value, style: const TextStyle(fontSize: 14),),
                                               ))
                                           .toList(),
                               onChanged: (newValue) {
